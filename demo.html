@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Input Form with Real-Time Image Capture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="submit"] {
+            display: block;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        #video-preview {
+            width: 100%;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        #capture-button {
+            display: block;
+            margin: 5px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        #capture-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>The Presence</h2>
+
+        <form id="data-form" action="/submit" method="post">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="student_id">Student ID:</label>
+            <input type="text" id="student_id" name="student_id" required>
+
+            <label for="image">Capture Image:</label>
+            <video id="video-preview"></video>
+            <button id="capture-button">Capture Image</button>
+
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+
+    <script>
+        const videoElement = document.getElementById('video-preview');
+        const captureButton = document.getElementById('capture-button');
+
+        // Access the camera and display video preview
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                videoElement.srcObject = stream;
+                videoElement.play();
+            })
+            .catch((error) => {
+                console.log('Error accessing the camera:', error);
+            });
+
+        // Capture image from video stream and display it on canvas
+        captureButton.addEventListener('click', () => {
+            const canvasElement = document.createElement('canvas');
+            const context = canvasElement.getContext('2d');
+
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            // Convert the canvas image to a data URL
+            const imageDataURL = canvasElement.toDataURL('image/jpeg');
+
+            // Perform further processing or send the captured image to the server
+
+            console.log('Image Data:', imageDataURL);
+
+            // Clean up the resources
+            videoElement.pause();
+            videoElement.srcObject.getTracks().forEach((track) => track.stop());
+            videoElement.remove();
+            captureButton.remove();
+        });
+    </script>
+</body>
+</html>
